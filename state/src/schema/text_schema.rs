@@ -7,6 +7,9 @@ pub struct TextBoxSchema {
     pub text: String,
     pub text_color: Option<String>,
 
+    /// For NVL mode. Keeps track of text within the scene.
+    pub text_history: Option<Vec<String>>,
+
     /// Float between [0,1] where origin is top left of screen. (x,y)
     pub position: Option<[f32; 2]>,
     pub visible: bool,
@@ -22,6 +25,7 @@ impl Default for TextBoxSchema {
             character_name_color: None,
             text: String::new(),
             text_color: None,
+            text_history: None,
             position: None,
             visible: true,
             start_scroll: false,
@@ -34,16 +38,27 @@ impl TextBoxSchema {
         self.start_scroll = false;
     }
 
+    pub fn enable_nvl_mode(&mut self) {
+        if self.text_history.is_none() {
+            self.text_history = Some(Vec::new());
+        }
+    }
+
+    pub fn disable_nvl_mode(&mut self) {
+        self.text_history = None;
+    }
+
     pub fn apply(&mut self, say: &SaySchema) {
-        *self = Self {
-            character_name: say.character_name.to_string(),
-            character_name_color: Some(say.character_color.to_string()),
-            text: say.text.to_string(),
-            text_color: None,
-            position: self.position, // Retain position
-            visible: self.visible,   // Retain visibility
-            start_scroll: true,      // Set to true
-        };
+        self.character_name = say.character_name.to_string();
+        self.character_name_color = Some(say.character_color.to_string());
+        self.text = say.text.to_string();
+        self.text_color = None;
+        if let Some(history) = &mut self.text_history {
+            // NVL mode
+            history.push(say.text.to_string());
+        }
+        // Retain position and visibility
+        self.start_scroll = true;
     }
 }
 

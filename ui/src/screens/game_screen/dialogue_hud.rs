@@ -4,7 +4,7 @@ use crate::{
     constants::{
         ACTIVATED_BUTTON_COLOR, CHARACTER_NAME_SIZE, CONTROLS_INTERACT_SIZE, CONTROLS_ROW_HEIGHT,
         CONTROLS_V_PADDING, HUD_BLUR_FILL, HUD_BORDER_STROKE, HUD_HEIGHT_RATIO, HUD_MARGIN_RATIO,
-        HUD_WIDTH_RATIO, NORMAL_BUTTON_COLOR, TEXT_SIZE,
+        HUD_WIDTH_RATIO, NORMAL_BUTTON_COLOR, NVL_HEIGHT_RATIO, NVL_WIDTH_RATIO, TEXT_SIZE,
     },
     render::{
         buttons::{button_text, col_button_click},
@@ -12,7 +12,7 @@ use crate::{
     },
     ui::FvnrsApp,
 };
-use eframe::egui::{self, Align, Color32, Frame, Layout, Pos2, Ui, epaint};
+use eframe::egui::{self, Align, Color32, Frame, Layout, Pos2, ScrollArea, Ui, epaint};
 use state::schema::{
     session_schema::{TextScrollMode, UserInputOverride},
     text_schema::TextModifiers,
@@ -24,8 +24,116 @@ pub fn draw_dialogue_hud(app: &mut FvnrsApp, ui: &mut Ui) -> bool {
 
     ui.style_mut().spacing.interact_size = CONTROLS_INTERACT_SIZE;
 
-    draw_dialogue(app, ui, viewport);
+    if app
+        .engine_core
+        .read()
+        .screens
+        .get_game_state()
+        .map_or(false, |gs| gs.textbox.text_history.is_some())
+    {
+        draw_nvl_dialogue(app, ui, viewport);
+    } else {
+        draw_dialogue(app, ui, viewport);
+    }
     draw_controls(app, ui, viewport)
+}
+
+fn draw_nvl_dialogue(app: &mut FvnrsApp, ui: &mut Ui, viewport: egui::Rect) {
+    let core_read = app.engine_core.read();
+    let Some(game_state) = core_read.screens.get_game_state() else {
+        return;
+    };
+
+    let Some(text_history) = &game_state.textbox.text_history else {
+        log::error!("NVL mode is enabled but text_history is None.");
+        return;
+    };
+
+    let size = egui::vec2(
+        viewport.width() * NVL_WIDTH_RATIO,
+        viewport.height() * NVL_HEIGHT_RATIO,
+    );
+    let pos = egui::pos2(viewport.center().x - size.x / 2.0, viewport.top());
+    let rect = egui::Rect::from_min_size(pos, size);
+
+    let mut should_end_text_scroll = false;
+
+    // box for the darkened background
+    // smaller, scrollable box leaving space at bottom for controls
+
+    ui.scope_builder(egui::UiBuilder::new().max_rect(rect), |ui| {
+        let scaled_margin = HUD_MARGIN_RATIO * viewport.width();
+
+        // Draw the hud if TextBoxSchema.position is not set
+        // Define the styling for the HUD
+        let hud_frame = {
+            // Overlay hud frame
+            Frame::default()
+                .fill(HUD_BLUR_FILL)
+                .inner_margin(scaled_margin)
+                .shadow(epaint::Shadow {
+                    color: Color32::from_black_alpha(30),
+                    offset: [0, 4],
+                    blur: 20,
+                    spread: 17,
+                })
+        };
+
+        // Apply the styling frame
+        hud_frame.show(ui, |ui| {
+            ui.set_height(viewport.height());
+
+            ui.vertical(|ui| {
+                ScrollArea::vertical().auto_shrink(false).show(ui, |ui| {
+                    let base_modifiers = TextModifiers {
+                        color: game_state.textbox.text_color.clone(),
+                        size: Some(TEXT_SIZE),
+                        ..Default::default()
+                    };
+                    text_history.iter().for_each(|text| {
+                        ui.add_space(10.0);
+                        rich_text_label(
+                            ui,
+                            &TextScrollMode::ScrollEnd(0), // Hardcode to disable scrolling
+                            &core_read.persistent.settings,
+                            text,
+                            &base_modifiers,
+                        );
+                    });
+
+                    ui.with_layout(Layout::top_down(Align::LEFT), |ui| {
+                        rich_text_label(
+                            ui,
+                            &TextScrollMode::ScrollEnd(0), // Hardcode to disable scrolling
+                            &core_read.persistent.settings,
+                            &game_state.textbox.character_name,
+                            &TextModifiers {
+                                color: game_state.textbox.character_name_color.clone(),
+                                size: Some(CHARACTER_NAME_SIZE),
+                                ..Default::default()
+                            },
+                        );
+                        should_end_text_scroll = rich_text_label(
+                            ui,
+                            &core_read.session.text_scroll_mode,
+                            &core_read.persistent.settings,
+                            &game_state.textbox.text,
+                            &base_modifiers,
+                        );
+                    });
+                });
+
+                // Space for controls
+                ui.add_space(CONTROLS_ROW_HEIGHT);
+            });
+        });
+    });
+
+    // Need to drop core_read before this!
+    drop(core_read);
+    if should_end_text_scroll {
+        app.engine_core.write().session.end_text_scroll();
+    }
 }
 
 fn draw_dialogue(app: &mut FvnrsApp, ui: &mut Ui, viewport: egui::Rect) {

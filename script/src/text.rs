@@ -35,3 +35,17 @@ pub fn reset_textbox(game_state: &mut GameState) {
     // Make it advance by default
     game_state.input_mode = GameStateInputMode::Continue;
 }
+
+pub fn enable_nvl_mode(game_state: &mut GameState) {
+    game_state.textbox.enable_nvl_mode();
+
+    // Make it advance by default
+    game_state.input_mode = GameStateInputMode::Continue;
+}
+
+pub fn disable_nvl_mode(game_state: &mut GameState) {
+    game_state.textbox.disable_nvl_mode();
+
+    // Make it advance by default
+    game_state.input_mode = GameStateInputMode::Continue;
+}
