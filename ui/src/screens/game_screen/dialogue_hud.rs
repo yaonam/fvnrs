@@ -4,7 +4,7 @@ use crate::{
     constants::{
         ACTIVATED_BUTTON_COLOR, CHARACTER_NAME_SIZE, CONTROLS_INTERACT_SIZE, CONTROLS_ROW_HEIGHT,
         CONTROLS_V_PADDING, HUD_BLUR_FILL, HUD_BORDER_STROKE, HUD_HEIGHT_RATIO, HUD_MARGIN_RATIO,
-        HUD_WIDTH_RATIO, NORMAL_BUTTON_COLOR, NVL_HEIGHT_RATIO, NVL_WIDTH_RATIO, TEXT_SIZE,
+        HUD_WIDTH_RATIO, NORMAL_BUTTON_COLOR, NVL_SPACING, NVL_WIDTH_RATIO, TEXT_SIZE,
     },
     render::{
         buttons::{button_text, col_button_click},
@@ -49,17 +49,11 @@ fn draw_nvl_dialogue(app: &mut FvnrsApp, ui: &mut Ui, viewport: egui::Rect) {
         return;
     };
 
-    let size = egui::vec2(
-        viewport.width() * NVL_WIDTH_RATIO,
-        viewport.height() * NVL_HEIGHT_RATIO,
-    );
+    let size = egui::vec2(viewport.width() * NVL_WIDTH_RATIO, viewport.height());
     let pos = egui::pos2(viewport.center().x - size.x / 2.0, viewport.top());
     let rect = egui::Rect::from_min_size(pos, size);
 
     let mut should_end_text_scroll = false;
-
-    // box for the darkened background
-    // smaller, scrollable box leaving space at bottom for controls
 
     ui.scope_builder(egui::UiBuilder::new().max_rect(rect), |ui| {
         let scaled_margin = HUD_MARGIN_RATIO * viewport.width();
@@ -81,17 +75,19 @@ fn draw_nvl_dialogue(app: &mut FvnrsApp, ui: &mut Ui, viewport: egui::Rect) {
 
         // Apply the styling frame
         hud_frame.show(ui, |ui| {
-            ui.set_height(viewport.height());
-
-            ui.vertical(|ui| {
-                ScrollArea::vertical().auto_shrink(false).show(ui, |ui| {
+            ScrollArea::vertical()
+                .auto_shrink(false)
+                .scroll_bar_visibility(egui::scroll_area::ScrollBarVisibility::AlwaysHidden)
+                // .stick_to_bottom(true)
+                .scroll_source(egui::scroll_area::ScrollSource::NONE)
+                .max_height(ui.available_height() - CONTROLS_ROW_HEIGHT)
+                .show(ui, |ui| {
                     let base_modifiers = TextModifiers {
                         color: game_state.textbox.text_color.clone(),
                         size: Some(TEXT_SIZE),
                         ..Default::default()
                     };
                     text_history.iter().for_each(|text| {
-                        ui.add_space(10.0);
                         rich_text_label(
                             ui,
                             &TextScrollMode::ScrollEnd(0), // Hardcode to disable scrolling
@@ -99,20 +95,10 @@ fn draw_nvl_dialogue(app: &mut FvnrsApp, ui: &mut Ui, viewport: egui::Rect) {
                             text,
                             &base_modifiers,
                         );
+                        ui.add_space(NVL_SPACING);
                     });
 
                     ui.with_layout(Layout::top_down(Align::LEFT), |ui| {
-                        rich_text_label(
-                            ui,
-                            &TextScrollMode::ScrollEnd(0), // Hardcode to disable scrolling
-                            &core_read.persistent.settings,
-                            &game_state.textbox.character_name,
-                            &TextModifiers {
-                                color: game_state.textbox.character_name_color.clone(),
-                                size: Some(CHARACTER_NAME_SIZE),
-                                ..Default::default()
-                            },
-                        );
                         should_end_text_scroll = rich_text_label(
                             ui,
                             &core_read.session.text_scroll_mode,
@@ -121,11 +107,10 @@ fn draw_nvl_dialogue(app: &mut FvnrsApp, ui: &mut Ui, viewport: egui::Rect) {
                             &base_modifiers,
                         );
                     });
-                });
 
-                // Space for controls
-                ui.add_space(CONTROLS_ROW_HEIGHT);
-            });
+                    ui.scroll_to_cursor(Some(Align::BOTTOM));
+                });
+            ui.add_space(CONTROLS_ROW_HEIGHT);
         });
     });
 

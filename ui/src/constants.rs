@@ -64,7 +64,7 @@ pub(crate) const HUD_HEIGHT_RATIO: f32 = 0.25; // Of viewport height
 pub(crate) const HUD_MARGIN_RATIO: f32 = 0.025; // Of viewport width
 
 pub(crate) const NVL_WIDTH_RATIO: f32 = 0.6; // Of viewport width
-pub(crate) const NVL_HEIGHT_RATIO: f32 = 0.25; // Of viewport height
+pub(crate) const NVL_SPACING: f32 = 45.0; // Between text
 
 pub(crate) const CHARACTER_NAME_SIZE: f32 = 38.0;
 pub(crate) const TEXT_SIZE: f32 = 33.0;

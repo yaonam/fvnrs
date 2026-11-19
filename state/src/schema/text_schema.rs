@@ -51,11 +51,13 @@ impl TextBoxSchema {
     pub fn apply(&mut self, say: &SaySchema) {
         self.character_name = say.character_name.to_string();
         self.character_name_color = Some(say.character_color.to_string());
-        self.text = say.text.to_string();
+        let old_text = std::mem::replace(&mut self.text, say.text.to_string());
         self.text_color = None;
-        if let Some(history) = &mut self.text_history {
+        if let Some(history) = &mut self.text_history
+            && !old_text.is_empty()
+        {
             // NVL mode
-            history.push(say.text.to_string());
+            history.push(old_text);
         }
         // Retain position and visibility
         self.start_scroll = true;
