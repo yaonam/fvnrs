@@ -63,10 +63,9 @@ fn draw_nvl_dialogue(app: &mut FvnrsApp, ui: &mut Ui, viewport: egui::Rect) {
         let hud_frame = {
             // Overlay hud frame
             Frame::default()
-                .fill(HUD_BLUR_FILL)
                 .inner_margin(scaled_margin)
                 .shadow(epaint::Shadow {
-                    color: Color32::from_black_alpha(30),
+                    color: HUD_BLUR_FILL,
                     offset: [0, 4],
                     blur: 20,
                     spread: 17,
