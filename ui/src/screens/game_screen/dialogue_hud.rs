@@ -18,6 +18,7 @@ use state::schema::{
     text_schema::TextModifiers,
 };
 
+/// Returns whether a repaint is needed.
 pub fn draw_dialogue_hud(app: &mut FvnrsApp, ui: &mut Ui) -> bool {
     // Reuse the viewport to prevent the cursor from moving
     let viewport = ui.max_rect();
@@ -60,7 +61,7 @@ fn draw_nvl_dialogue(app: &mut FvnrsApp, ui: &mut Ui, viewport: egui::Rect) {
 
         // Draw the hud if TextBoxSchema.position is not set
         // Define the styling for the HUD
-        let hud_frame = {
+        let hud_frame = 
             // Overlay hud frame
             Frame::default()
                 .inner_margin(scaled_margin)
@@ -69,8 +70,7 @@ fn draw_nvl_dialogue(app: &mut FvnrsApp, ui: &mut Ui, viewport: egui::Rect) {
                     offset: [0, 4],
                     blur: 20,
                     spread: 17,
-                })
-        };
+                });
 
         // Apply the styling frame
         hud_frame.show(ui, |ui| {
