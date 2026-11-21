@@ -1,8 +1,9 @@
 use eframe::egui::{self, Frame, Ui};
+use state::schema::widget_schema::{RouteSelectSchema, WidgetSchema};
 
 use crate::ui::FvnrsApp;
 
-pub fn draw_route_select(app: &mut FvnrsApp, ui: &mut Ui) -> bool {
+pub fn draw_route_select(routes: &RouteSelectSchema, ui: &mut Ui) -> bool {
     let viewport = ui.max_rect();
     let size = egui::vec2(viewport.width() * NVL_WIDTH_RATIO, viewport.height());
     let pos = egui::pos2(viewport.center().x - size.x / 2.0, viewport.top());
@@ -20,7 +21,15 @@ pub fn draw_route_select(app: &mut FvnrsApp, ui: &mut Ui) -> bool {
                     spread: 17,
                 });
 
-        hud_frame.show(ui, |ui| {});
+        hud_frame.show(ui, |ui| {
+            ui.horizontal(|ui| {
+                for route in routes {
+                    if ui.button(&route.description).clicked() {
+                        app.engine_core.write().screens.jump_to_scene(route.scene_id);
+                    }
+                }
+            });
+        });
     });
 
     false

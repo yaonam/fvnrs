@@ -6,3 +6,4 @@ pub mod save_schema;
 pub mod schema;
 pub mod session_schema;
 pub mod text_schema;
+pub mod widget_schema;

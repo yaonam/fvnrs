@@ -16,6 +16,8 @@ pub struct GameState {
     pub playable: PlayableSchema,
 
     pub input_mode: GameStateInputMode,
+
+    pub widgets: Option<WidgetSchema>,
 }
 
 impl Default for GameState {
@@ -25,6 +27,7 @@ impl Default for GameState {
             textbox: TextBoxSchema::default(),
             playable: PlayableSchema::default(),
             input_mode: GameStateInputMode::Wait,
+            widgets: None,
         }
     }
 }
