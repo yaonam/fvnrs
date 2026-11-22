@@ -59,12 +59,27 @@ fn draw_nvl_dialogue(app: &mut FvnrsApp, ui: &mut Ui, viewport: egui::Rect) {
     ui.scope_builder(egui::UiBuilder::new().max_rect(rect), |ui| {
         let scaled_margin = HUD_MARGIN_RATIO * viewport.width();
 
+        // Draw the blurred game target
+        let uv = egui::Rect::from_min_max(
+            egui::pos2(
+                (rect.min.x - viewport.min.x) / viewport.width(),
+                (rect.min.y - viewport.min.y) / viewport.height(),
+            ),
+            egui::pos2(
+                (rect.max.x - viewport.min.x) / viewport.width(),
+                (rect.max.y - viewport.min.y) / viewport.height(),
+            ),
+        );
+        egui::Image::new((app.egui_blurred_tex_id, rect.size()))
+            .uv(uv)
+            .corner_radius(15.0) // match frame
+            .paint_at(ui, rect);
         let hud_frame = Frame::default()
             .fill(NVL_FILL)
             .inner_margin(scaled_margin)
             .shadow(epaint::Shadow {
                 color: NVL_FILL,
-                offset: [0, 4],
+                offset: [0, 0],
                 blur: 20,
                 spread: 17,
             });
