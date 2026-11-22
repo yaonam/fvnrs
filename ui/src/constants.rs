@@ -87,6 +87,16 @@ pub(crate) const NORMAL_BUTTON_COLOR: Color32 = Color32::WHITE;
 pub(crate) const BASE_WAIT_TIME_MS: u64 = 700;
 
 // ***********************************************************
+// ROUTE SELECT WIDGET
+// ***********************************************************
+
+pub(crate) const ROUTE_SLOT_HEIGHT: f32 = 50.0;
+pub(crate) const ROUTE_SLOT_PADDING: f32 = 10.0;
+pub(crate) const ROUTE_SLOT_CORNER_RADIUS: f32 = 5.0;
+
+pub(crate) const ROUTE_SLOT_TEXT_SIZE: f32 = 30.0;
+
+// ***********************************************************
 // SETTINGS
 // ***********************************************************
 

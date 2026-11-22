@@ -4,6 +4,7 @@ use crate::schema::{
     playable_schema::PlayableSchema,
     schema::SceneSchema,
     text_schema::{SaySchema, TextBoxSchema},
+    widget_schema::WidgetSchema,
 };
 
 #[derive(Clone, Serialize, Deserialize, PartialEq, Debug)]
@@ -17,7 +18,7 @@ pub struct GameState {
 
     pub input_mode: GameStateInputMode,
 
-    pub widgets: Option<WidgetSchema>,
+    pub widget: Option<WidgetSchema>,
 }
 
 impl Default for GameState {
@@ -27,7 +28,7 @@ impl Default for GameState {
             textbox: TextBoxSchema::default(),
             playable: PlayableSchema::default(),
             input_mode: GameStateInputMode::Wait,
-            widgets: None,
+            widget: None,
         }
     }
 }
@@ -49,4 +50,6 @@ pub enum GameStateInputMode {
     Wait,
     /// Continue to next action without waiting for user input
     Continue,
+    /// Prevent user input from advancing.
+    AdvanceBlocked,
 }

@@ -1,10 +1,10 @@
 use eframe::egui;
-use state::schema::session_schema::UserInputOverride;
+use state::schema::{session_schema::UserInputOverride, widget_schema::WidgetSchema};
 
 use crate::{
     animation_player::process_animations,
     inputs::{handle_game_screen_interaction, handle_next, handle_user_overrides},
-    screens::game_screen::dialogue_hud::draw_dialogue_hud,
+    screens::game_screen::{dialogue_hud::draw_dialogue_hud, game_widgets::draw_game_widgets},
     ui::FvnrsApp,
 };
 
@@ -26,6 +26,9 @@ pub(crate) fn draw_game_screen(app: &mut FvnrsApp, ui: &mut egui::Ui, frame: &mu
         && app.engine_core.read().session.user_input_override != Some(UserInputOverride::Hide)
     {
         render |= draw_dialogue_hud(app, ui);
+
+        // Draw widgets if any
+        render |= draw_game_widgets(app, ui);
 
         // Handle Auto/Skip
         render |= handle_user_overrides(app, ui.ctx());

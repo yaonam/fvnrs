@@ -609,7 +609,7 @@ impl EngineCore {
 
             // Break or continue
             match state.input_mode {
-                GameStateInputMode::Wait => break,
+                GameStateInputMode::Wait | GameStateInputMode::AdvanceBlocked => break,
                 GameStateInputMode::Continue => {
                     state.input_mode = GameStateInputMode::Wait;
                 }

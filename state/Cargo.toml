@@ -1,10 +1,9 @@
 [package]
-name = "state"
+name    = "state"
 version = "0.1.0"
 edition = "2024"
 
 [dependencies]
 emath.workspace = true
-log.workspace = true
+log.workspace   = true
 serde.workspace = true
-
