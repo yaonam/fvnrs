@@ -4,7 +4,7 @@ use crate::{
     constants::{
         ACTIVATED_BUTTON_COLOR, CHARACTER_NAME_SIZE, CONTROLS_INTERACT_SIZE, CONTROLS_ROW_HEIGHT,
         CONTROLS_V_PADDING, HUD_BLUR_FILL, HUD_BORDER_STROKE, HUD_HEIGHT_RATIO, HUD_MARGIN_RATIO,
-        HUD_WIDTH_RATIO, NORMAL_BUTTON_COLOR, NVL_SPACING, NVL_WIDTH_RATIO, TEXT_SIZE,
+        HUD_WIDTH_RATIO, NORMAL_BUTTON_COLOR, NVL_FILL, NVL_SPACING, NVL_WIDTH_RATIO, TEXT_SIZE,
     },
     render::{
         buttons::{button_text, col_button_click},
@@ -59,18 +59,15 @@ fn draw_nvl_dialogue(app: &mut FvnrsApp, ui: &mut Ui, viewport: egui::Rect) {
     ui.scope_builder(egui::UiBuilder::new().max_rect(rect), |ui| {
         let scaled_margin = HUD_MARGIN_RATIO * viewport.width();
 
-        // Draw the hud if TextBoxSchema.position is not set
-        // Define the styling for the HUD
-        let hud_frame = 
-            // Overlay hud frame
-            Frame::default()
-                .inner_margin(scaled_margin)
-                .shadow(epaint::Shadow {
-                    color: HUD_BLUR_FILL,
-                    offset: [0, 4],
-                    blur: 20,
-                    spread: 17,
-                });
+        let hud_frame = Frame::default()
+            .fill(NVL_FILL)
+            .inner_margin(scaled_margin)
+            .shadow(epaint::Shadow {
+                color: NVL_FILL,
+                offset: [0, 4],
+                blur: 20,
+                spread: 17,
+            });
 
         // Apply the styling frame
         hud_frame.show(ui, |ui| {

@@ -74,12 +74,14 @@ pub(crate) const CONTROLS_V_PADDING: f32 = 12.0;
 
 pub(crate) const CONTROLS_ROW_HEIGHT: f32 = CONTROLS_INTERACT_SIZE.y + 2.0 * CONTROLS_V_PADDING;
 
-// Dark grey
+// Grey
 pub(crate) const HUD_BLUR_FILL: Color32 = Color32::from_rgba_unmultiplied_const(46, 57, 61, 100);
 pub(crate) const HUD_BORDER_STROKE: Stroke = Stroke {
     width: 0.2,
     color: Color32::from_rgba_unmultiplied_const(255, 255, 255, 100),
 };
+// Dark grey
+pub(crate) const NVL_FILL: Color32 = Color32::from_rgba_unmultiplied_const(14, 17, 18, 160);
 
 pub(crate) const ACTIVATED_BUTTON_COLOR: Color32 = Color32::GRAY;
 pub(crate) const NORMAL_BUTTON_COLOR: Color32 = Color32::WHITE;
