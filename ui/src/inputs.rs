@@ -1,7 +1,9 @@
 use std::time::Duration;
 
 use eframe::egui::{self, InputState, MouseWheelUnit, Response};
+use script::scene::jump;
 use state::{
+    game_state::{GameState, GameStateInputMode},
     schema::session_schema::{TextScrollMode, UserInputOverride},
     utils::get_current_time_ms,
 };
@@ -157,6 +159,11 @@ pub(crate) fn handle_user_overrides(app: &mut FvnrsApp, ctx: &egui::Context) -> 
 /// Advances to the next state. Returns whether the images changed.
 pub(crate) fn handle_next(app: &mut FvnrsApp) -> bool {
     let mut core_write = app.engine_core.write();
+    if let Some(game_state) = core_write.screens.get_game_state() {
+        if game_state.input_mode == GameStateInputMode::AdvanceBlocked {
+            return false;
+        }
+    }
     core_write.next();
     let Some(game_state) = core_write.screens.get_game_state() else {
         return false;
@@ -169,6 +176,21 @@ pub(crate) fn handle_next(app: &mut FvnrsApp) -> bool {
         }
     }
     core_write.attr_changed(|s| &s.playable.images)
+}
+
+/// Advances the scene. Returns whether the images changed.
+pub(crate) fn handle_jump(app: &mut FvnrsApp, scene_id: usize) -> bool {
+    {
+        let mut core_write = app.engine_core.write();
+        let Some(game_state) = core_write.screens.get_game_state_mut() else {
+            return false;
+        };
+        game_state.widget = None;
+        jump(game_state, scene_id); // Clears the AdvanceBlocked input mode
+        core_write.refresh_cache();
+    }
+    // Handle the rest
+    handle_next(app)
 }
 
 fn is_mouse_wheel_down_event(i: &InputState) -> bool {

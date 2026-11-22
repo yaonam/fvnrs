@@ -1,8 +1,7 @@
 use eframe::{egui::{self, FontId, Frame, RichText, Ui}, epaint};
-use script::scene::jump;
 use state::schema::widget_schema::{WidgetSchema};
 
-use crate::{constants::{HUD_BLUR_FILL, ROUTE_SLOT_CORNER_RADIUS, ROUTE_SLOT_HEIGHT, ROUTE_SLOT_PADDING, ROUTE_SLOT_TEXT_SIZE}, ui::FvnrsApp};
+use crate::{constants::{HUD_BLUR_FILL, ROUTE_SLOT_CORNER_RADIUS, ROUTE_SLOT_HEIGHT, ROUTE_SLOT_PADDING, ROUTE_SLOT_TEXT_SIZE}, inputs::handle_jump, ui::FvnrsApp};
 
 pub fn draw_route_select(app: &mut FvnrsApp, ui: &mut Ui) -> bool {
     let mut core_write = app.engine_core.write();
@@ -46,8 +45,9 @@ pub fn draw_route_select(app: &mut FvnrsApp, ui: &mut Ui) -> bool {
     });
 
     if let Some(scene_id) = jump_to_scene {
-        game_state.widget = None; // Clear the widget
-        jump(game_state, scene_id); // Also clears the input blocking
+        drop(core_write);
+        handle_jump(app, scene_id);
+
         return true;
     }
 
