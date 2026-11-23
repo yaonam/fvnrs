@@ -3,7 +3,7 @@ use std::time::Duration;
 use eframe::egui::{self, InputState, MouseWheelUnit, Response};
 use script::scene::jump;
 use state::{
-    game_state::{GameState, GameStateInputMode},
+    game_state::GameStateInputMode,
     schema::session_schema::{TextScrollMode, UserInputOverride},
     utils::get_current_time_ms,
 };
@@ -37,6 +37,14 @@ pub(crate) fn handle_global_inputs(app: &mut FvnrsApp, ctx: &egui::Context) {
         // Send persistent update to persist worker
         let _ = core_write.persist_worker_tx.try_send(());
     }
+}
+
+pub(crate) fn handle_game_screen_interaction(
+    app: &mut FvnrsApp,
+    ui: &egui::Ui,
+    response: Response,
+) -> bool {
+    let ctx = ui.ctx();
 
     // Hide hud
     if ctx.input(|i| i.key_pressed(egui::Key::H)) {
@@ -47,15 +55,31 @@ pub(crate) fn handle_global_inputs(app: &mut FvnrsApp, ctx: &egui::Context) {
         } else {
             core_write.session.user_input_override = None;
         }
+        return true;
     }
-}
 
-pub(crate) fn handle_game_screen_interaction(
-    app: &mut FvnrsApp,
-    ui: &egui::Ui,
-    response: Response,
-) -> bool {
-    if response.clicked() || ui.ctx().input(|i| i.key_pressed(egui::Key::Space)) {
+    // Toggle skip
+    if ctx.input_mut(|i| i.consume_key(egui::Modifiers::NONE, egui::Key::Tab)) {
+        // Prevent egui from focusing/selecting UI elements
+        ctx.memory_mut(|m| {
+            m.move_focus(egui::FocusDirection::None);
+            if let Some(id) = m.focused() {
+                m.surrender_focus(id);
+            }
+        });
+
+        let mut core_write = app.engine_core.write();
+
+        if core_write.session.user_input_override != Some(UserInputOverride::Skip) {
+            core_write.session.user_input_override = Some(UserInputOverride::Skip);
+        } else {
+            core_write.session.user_input_override = None;
+        }
+        return true;
+    }
+
+    // Handle state inputs
+    if response.clicked() || ctx.input(|i| i.key_pressed(egui::Key::Space)) {
         let mut core_write = app.engine_core.write();
         if core_write.session.user_input_override.is_some() {
             // Remove user input override
@@ -78,7 +102,7 @@ pub(crate) fn handle_game_screen_interaction(
             core_write.session.user_input_override = None;
         }
         core_write.screens.open_menu();
-    } else if ui.ctx().input(|i| is_mouse_wheel_down_event(i)) {
+    } else if ctx.input(|i| is_mouse_wheel_down_event(i)) {
         let mut core_write = app.engine_core.write();
         // Next state if not already seen
         core_write.next_if_already_seen();
@@ -88,7 +112,7 @@ pub(crate) fn handle_game_screen_interaction(
         if core_write.attr_changed(|s| &s.playable.images) {
             return true;
         }
-    } else if ui.ctx().input(|i| is_mouse_wheel_up_event(i)) {
+    } else if ctx.input(|i| is_mouse_wheel_up_event(i)) {
         let mut core_write = app.engine_core.write();
         core_write.back();
         // Render screen
@@ -104,25 +128,31 @@ pub(crate) fn handle_user_overrides(app: &mut FvnrsApp, ctx: &egui::Context) -> 
     let mut repaint = false;
     let mut repaint_after = None;
     // Check UserInputMode
-    let core_read = app.engine_core.read();
-    let input_mode = core_read.session.user_input_override;
+    let mut core_write = app.engine_core.write();
+    // Override override if CTRL is pressed
+    let input_mode = if ctx.input(|i| i.modifiers.ctrl) {
+        core_write.session.user_input_override = None;
+        Some(UserInputOverride::Skip)
+    } else {
+        core_write.session.user_input_override
+    };
     match input_mode {
         Some(UserInputOverride::Auto) => {
             // Wait for the scrolling to finish
-            if let TextScrollMode::ScrollEnd(end_ms) = core_read.session.text_scroll_mode {
-                let Some(game_state) = core_read.screens.get_game_state() else {
+            if let TextScrollMode::ScrollEnd(end_ms) = core_write.session.text_scroll_mode {
+                let Some(game_state) = core_write.screens.get_game_state() else {
                     log::warn!("Couldn't get game state for Auto");
                     return false;
                 };
 
                 // Check the time
-                let wait_time_per_char_ms = core_read.persistent.settings.text_wait;
+                let wait_time_per_char_ms = core_write.persistent.settings.text_wait;
                 let text_len = game_state.textbox.text.len();
                 let now = get_current_time_ms();
                 let wait_end = end_ms + text_len as u64 * wait_time_per_char_ms + BASE_WAIT_TIME_MS;
 
                 if now >= wait_end {
-                    drop(core_read);
+                    drop(core_write);
                     render = handle_next(app);
                     repaint = true;
                 } else {
@@ -131,7 +161,7 @@ pub(crate) fn handle_user_overrides(app: &mut FvnrsApp, ctx: &egui::Context) -> 
             }
         }
         Some(UserInputOverride::Skip) => {
-            drop(core_read);
+            drop(core_write);
             {
                 let mut core_write = app.engine_core.write();
                 // TODO: Have a global max scene schema?
