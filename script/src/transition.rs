@@ -2,7 +2,11 @@ use state::game_state::GameState;
 
 use crate::layered_image::{LayeredImage, show_bg};
 
-pub fn fade_in<L: LayeredImage>(game_state: &mut GameState, layered_image: L, tween_duration: f32) {
+pub fn fade_in_bg<L: LayeredImage>(
+    game_state: &mut GameState,
+    layered_image: L,
+    tween_duration: f32,
+) {
     show_bg(game_state, layered_image)
         .opacity(0.0)
         .animate()
@@ -14,7 +18,7 @@ pub fn fade_in<L: LayeredImage>(game_state: &mut GameState, layered_image: L, tw
         .and();
 }
 
-pub fn fade_out<L: LayeredImage>(
+pub fn fade_out_bg<L: LayeredImage>(
     game_state: &mut GameState,
     layered_image: L,
     tween_duration: f32,
@@ -25,6 +29,30 @@ pub fn fade_out<L: LayeredImage>(
         .opacity(1.0)
         .tween(tween_duration)
         .opacity(0.0)
+        .wait(1.0)
+        .auto_advance()
+        .and();
+}
+
+/// Fades out the hide_image and then fades in the show_image.
+pub fn fade_in_out_bg<HL: LayeredImage, SL: LayeredImage>(
+    game_state: &mut GameState,
+    hide_image: HL,
+    show_image: SL,
+    tween_duration: f32,
+) {
+    show_bg(game_state, hide_image)
+        .opacity(1.0)
+        .animate()
+        .opacity(1.0)
+        .tween(tween_duration)
+        .opacity(0.0)
+        .wait(1.0)
+        // Fade in next image
+        .show(show_image)
+        .opacity(0.0)
+        .tween(tween_duration)
+        .opacity(1.0)
         .wait(1.0)
         .auto_advance()
         .and();

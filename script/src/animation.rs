@@ -157,7 +157,10 @@ impl<'a> AnimationBuilder<'a> {
     }
 
     pub fn show(mut self, layered_image: impl LayeredImage) -> Self {
-        self.push_step(AnimationStep::Show(layered_image.images()));
+        let images = layered_image.images();
+        self.last_images = Some(images.clone());
+        self.last_transform = ImageTransformSchema::default();
+        self.push_step(AnimationStep::Show(images));
 
         self
     }

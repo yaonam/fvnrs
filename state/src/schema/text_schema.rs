@@ -41,6 +41,8 @@ impl TextBoxSchema {
     pub fn enable_nvl_mode(&mut self) {
         if self.text_history.is_none() {
             self.text_history = Some(Vec::new());
+            self.text.clear();
+            self.character_name.clear();
         }
     }
 
