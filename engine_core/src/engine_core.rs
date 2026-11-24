@@ -343,23 +343,27 @@ impl EngineCore {
     }
 
     /// Processes and caches the next state.
-    pub fn cache_next(&mut self) {
+    /// Returns if at least one state was cached.
+    pub fn cache_next(&mut self) -> bool {
         // Grab the latest scene from cache or current
         let Some(mut latest_state) = (self
             .game_state_cache
             .back()
             .or_else(|| self.screens.get_game_state()))
         .cloned() else {
-            return;
+            return false;
         };
 
         // Handle one-off animations
         Self::handle_finished_animations(&mut latest_state.playable);
 
-        self.process_state(&mut latest_state);
+        if self.process_state(&mut latest_state) {
+            info!("Cached state: {:#?}", latest_state);
+            self.game_state_cache.push_back(latest_state);
+            return true;
+        }
 
-        info!("Cached state: {:#?}", latest_state);
-        self.game_state_cache.push_back(latest_state);
+        false
     }
 
     /// Clears and repopulates the cache
@@ -578,10 +582,13 @@ impl EngineCore {
     }
 
     /// Applies actions on the state until wait requested.
-    fn process_state(&mut self, state: &mut GameState) {
+    /// Returns if at least 1 action was processed.
+    fn process_state(&mut self, state: &mut GameState) -> bool {
         // Clear one offs
         state.playable.audio.clear_unlooped_audio();
         state.textbox.clear_start_scroll();
+
+        let mut processed_actions = false;
 
         loop {
             // Grab next action and increment index
@@ -594,6 +601,7 @@ impl EngineCore {
                     break;
                 };
                 scene.index += 1;
+                processed_actions = true;
                 action
             };
 
@@ -615,5 +623,7 @@ impl EngineCore {
                 }
             }
         }
+
+        processed_actions
     }
 }

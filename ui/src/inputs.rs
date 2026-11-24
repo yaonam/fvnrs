@@ -3,7 +3,7 @@ use std::time::Duration;
 use eframe::egui::{self, InputState, MouseWheelUnit, Response};
 use script::scene::jump;
 use state::{
-    game_state::GameStateInputMode,
+    game_state::GameStateInputMode::{self, AdvanceBlocked},
     schema::session_schema::{TextScrollMode, UserInputOverride},
     utils::get_current_time_ms,
 };
@@ -124,11 +124,16 @@ pub(crate) fn handle_game_screen_interaction(
 }
 
 pub(crate) fn handle_user_overrides(app: &mut FvnrsApp, ctx: &egui::Context) -> bool {
-    let mut render = false;
-    let mut repaint = false;
-    let mut repaint_after = None;
     // Check UserInputMode
     let mut core_write = app.engine_core.write();
+
+    // Don't do anything if AdvanceBlocked
+    if let Some(game_state) = core_write.screens.get_game_state() {
+        if game_state.input_mode == AdvanceBlocked {
+            return false;
+        }
+    }
+
     // Override override if CTRL is pressed
     let input_mode = if ctx.input(|i| i.modifiers.ctrl) {
         core_write.session.user_input_override = None;
@@ -136,6 +141,10 @@ pub(crate) fn handle_user_overrides(app: &mut FvnrsApp, ctx: &egui::Context) -> 
     } else {
         core_write.session.user_input_override
     };
+
+    let mut render = false;
+    let mut repaint = false;
+    let mut repaint_after = None;
     match input_mode {
         Some(UserInputOverride::Auto) => {
             // Wait for the scrolling to finish

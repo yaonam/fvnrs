@@ -72,7 +72,9 @@ impl CacheWorker {
                 .state_cache_size
                 .saturating_sub(engine_core.get_cached_state_count());
             for _ in 0..need_to_cache_count {
-                engine_core.cache_next();
+                if !engine_core.cache_next() {
+                    break;
+                }
             }
         }
 
