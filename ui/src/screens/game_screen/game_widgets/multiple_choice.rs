@@ -53,8 +53,8 @@ pub fn draw_multiple_choice(app: &mut FvnrsApp, ui: &mut Ui) -> bool {
             .sum::<usize>()
             >= *max_weight;
 
-        for mut choice in choices {
-            if draw_choice_button(ui, &mut choice, at_max_weight) {
+        for choice in choices {
+            if draw_choice_button(ui, choice, at_max_weight) {
                 needs_render = true;
             }
         }
@@ -67,11 +67,6 @@ pub fn draw_multiple_choice(app: &mut FvnrsApp, ui: &mut Ui) -> bool {
 
 /// Returns true if the route button was clicked.
 fn draw_choice_button(ui: &mut Ui, choice: &mut MultipleChoiceSchema, at_max_weight: bool) -> bool {
-    let (rect, response) = ui.allocate_exact_size(
-        egui::vec2(ROUTE_SLOT_WIDTH, ROUTE_SLOT_HEIGHT),
-        egui::Sense::click(),
-    );
-
     if at_max_weight && !choice.selected {
         ui.add_enabled(
             false,
@@ -81,13 +76,13 @@ fn draw_choice_button(ui: &mut Ui, choice: &mut MultipleChoiceSchema, at_max_wei
                     .font(egui::FontId::proportional(ROUTE_SLOT_TEXT_SIZE)),
             ),
         );
+        false
     } else {
         ui.checkbox(
             &mut choice.selected,
             RichText::new(&choice.description)
                 .font(egui::FontId::proportional(ROUTE_SLOT_TEXT_SIZE)),
-        );
+        )
+        .clicked()
     }
-
-    response.clicked()
 }
