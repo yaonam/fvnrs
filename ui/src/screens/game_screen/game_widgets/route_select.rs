@@ -1,7 +1,14 @@
-use eframe::{egui::{self, FontId, Frame, RichText, Ui}, epaint};
-use state::schema::widget_schema::{WidgetSchema};
+use eframe::egui::{self, FontId, Ui, UiBuilder};
+use state::schema::widget_schema::WidgetSchema;
 
-use crate::{constants::{HUD_BLUR_FILL, ROUTE_SLOT_CORNER_RADIUS, ROUTE_SLOT_HEIGHT, ROUTE_SLOT_PADDING, ROUTE_SLOT_TEXT_SIZE}, inputs::handle_jump, ui::FvnrsApp};
+use crate::{
+    constants::{
+        CONTROLS_ROW_HEIGHT, HUD_HEIGHT_RATIO, ROUTE_SLOT_CORNER_RADIUS, ROUTE_SLOT_HEIGHT,
+        ROUTE_SLOT_PADDING, ROUTE_SLOT_TEXT_SIZE, ROUTE_SLOT_WIDTH,
+    },
+    inputs::handle_jump,
+    ui::FvnrsApp,
+};
 
 pub fn draw_route_select(app: &mut FvnrsApp, ui: &mut Ui) -> bool {
     let mut core_write = app.engine_core.write();
@@ -11,37 +18,32 @@ pub fn draw_route_select(app: &mut FvnrsApp, ui: &mut Ui) -> bool {
     let Some(widget) = &game_state.widget else {
         return false;
     };
-    let WidgetSchema::RouteSelect { routes } = widget;
+    let WidgetSchema::RouteSelect { routes } = widget else {
+        return false;
+    };
 
     let viewport = ui.max_rect();
-    let size = egui::vec2(viewport.width(), viewport.height());
-    let pos = egui::pos2(viewport.center().x - size.x / 2.0, viewport.top());
-    let rect = egui::Rect::from_min_size(pos, size);
+    let pos = egui::pos2(
+        viewport.center().x,
+        (viewport.height() * (1.0 - HUD_HEIGHT_RATIO) - CONTROLS_ROW_HEIGHT) / 2.0,
+    );
+    let spacing_total = routes.len().saturating_sub(1) as f32 * ROUTE_SLOT_PADDING;
+    let size = egui::vec2(
+        ROUTE_SLOT_WIDTH,
+        ROUTE_SLOT_HEIGHT * routes.len() as f32 + spacing_total,
+    );
+    let rect = egui::Rect::from_center_size(pos, size);
 
     let mut jump_to_scene: Option<usize> = None;
 
-    ui.scope_builder(egui::UiBuilder::new().max_rect(rect), |ui| {
-        let hud_frame = 
-            // Overlay hud frame
-            Frame::default()
-                .shadow(epaint::Shadow {
-                    color: HUD_BLUR_FILL,
-                    offset: [0, 4],
-                    blur: 20,
-                    spread: 17,
-                });
+    ui.scope_builder(UiBuilder::new().max_rect(rect), |ui| {
+        ui.spacing_mut().item_spacing.y = ROUTE_SLOT_PADDING;
 
-        hud_frame.show(ui, |ui| {
-            ui.with_layout(
-                egui::Layout::top_down(egui::Align::Center)
-                .with_main_align(egui::Align::Center), |ui| {
-                for route in routes {
-                    if draw_route_button(ui, &route.description) {
-                        jump_to_scene = Some(route.scene_id);
-                    }
-                }
-            });
-        });
+        for route in routes {
+            if draw_route_button(ui, &route.description) {
+                jump_to_scene = Some(route.scene_id);
+            }
+        }
     });
 
     if let Some(scene_id) = jump_to_scene {
@@ -57,7 +59,7 @@ pub fn draw_route_select(app: &mut FvnrsApp, ui: &mut Ui) -> bool {
 /// Returns true if the route button was clicked.
 fn draw_route_button(ui: &mut Ui, route_description: &str) -> bool {
     let (rect, response) = ui.allocate_exact_size(
-        egui::vec2(ui.available_width(), ROUTE_SLOT_HEIGHT),
+        egui::vec2(ROUTE_SLOT_WIDTH, ROUTE_SLOT_HEIGHT),
         egui::Sense::click(),
     );
 
@@ -69,13 +71,13 @@ fn draw_route_button(ui: &mut Ui, route_description: &str) -> bool {
     ui.painter()
         .rect_filled(rect, ROUTE_SLOT_CORNER_RADIUS, fill);
 
-    ui.scope_builder(
-        egui::UiBuilder::new().max_rect(rect.shrink(ROUTE_SLOT_PADDING)),
-        |ui| {
-            ui.label(
-                RichText::new(route_description).font(FontId::proportional(ROUTE_SLOT_TEXT_SIZE))
-            );
-        },
+    ui.painter().text(
+        rect.center(),
+        egui::Align2::CENTER_CENTER,
+        route_description,
+        FontId::proportional(ROUTE_SLOT_TEXT_SIZE),
+        ui.visuals().text_color(),
     );
+
     response.clicked()
 }

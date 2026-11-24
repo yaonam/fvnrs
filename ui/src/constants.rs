@@ -93,6 +93,7 @@ pub(crate) const BASE_WAIT_TIME_MS: u64 = 700;
 // ***********************************************************
 
 pub(crate) const ROUTE_SLOT_HEIGHT: f32 = 50.0;
+pub(crate) const ROUTE_SLOT_WIDTH: f32 = 1000.0;
 pub(crate) const ROUTE_SLOT_PADDING: f32 = 10.0;
 pub(crate) const ROUTE_SLOT_CORNER_RADIUS: f32 = 5.0;
 

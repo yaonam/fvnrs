@@ -1,5 +1,5 @@
 use eframe::egui;
-use state::schema::{session_schema::UserInputOverride, widget_schema::WidgetSchema};
+use state::schema::session_schema::UserInputOverride;
 
 use crate::{
     animation_player::process_animations,

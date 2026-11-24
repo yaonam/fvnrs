@@ -3,11 +3,13 @@ use state::schema::widget_schema::WidgetSchema;
 
 use crate::ui::FvnrsApp;
 
+mod multiple_choice;
 mod route_select;
 
 #[derive(Clone, Copy)]
 enum WidgetKind {
     RouteSelect,
+    MultipleChoice,
 }
 
 pub(crate) fn draw_game_widgets(app: &mut FvnrsApp, ui: &mut egui::Ui) -> bool {
@@ -21,10 +23,12 @@ pub(crate) fn draw_game_widgets(app: &mut FvnrsApp, ui: &mut egui::Ui) -> bool {
         };
         match widget {
             WidgetSchema::RouteSelect { .. } => WidgetKind::RouteSelect,
+            WidgetSchema::MultipleChoice { .. } => WidgetKind::MultipleChoice,
         }
     };
 
     match widget {
         WidgetKind::RouteSelect => route_select::draw_route_select(app, ui),
+        WidgetKind::MultipleChoice => multiple_choice::draw_multiple_choice(app, ui),
     }
 }
