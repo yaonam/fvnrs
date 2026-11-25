@@ -46,6 +46,7 @@ pub struct FvnrsApp {
     pub(crate) startup_splash_path: String,
     pub(crate) loading_splash_path: String,
     pub(crate) start_scene: usize,
+    pub(crate) about_content: String,
 
     pub engine_core: Arc<RwLock<EngineCore>>,
     pub needs_reload: Arc<AtomicBool>,
@@ -190,6 +191,7 @@ impl FvnrsApp {
         needs_reload: Arc<AtomicBool>,
         startup_splash_path: &str,
         loading_splash_path: &str,
+        about_content: &str,
         cache_worker_rx: std::sync::mpsc::Receiver<()>,
         persist_worker_rx: std::sync::mpsc::Receiver<()>,
     ) -> Self {
@@ -331,6 +333,7 @@ impl FvnrsApp {
             startup_splash_path: startup_splash_path.to_string(),
             loading_splash_path: loading_splash_path.to_string(),
             start_scene,
+            about_content: about_content.to_string(),
             engine_core: shared_engine_core,
             needs_reload,
             pipelines_and_layouts,

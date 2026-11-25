@@ -88,7 +88,7 @@ fn draw_overlay_view(app: &mut FvnrsApp, ui: &mut Ui, frame: &mut eframe::Frame)
         match overlay_screen.screen_type {
             OverlayScreenType::Saves => draw_saves_view(app, ui, frame),
             OverlayScreenType::Settings => draw_settings_view(app, ui),
-            OverlayScreenType::About => draw_about_view(ui),
+            OverlayScreenType::About => draw_about_view(ui, &app.about_content),
         }
     }
 }
