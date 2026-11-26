@@ -1,6 +1,8 @@
 use state::{
     game_state::{GameState, GameStateInputMode},
-    schema::widget_schema::{MultipleChoiceSchema, RouteSelectSchema, WidgetSchema},
+    schema::widget_schema::{
+        CoffeeDilutionSchema, MultipleChoiceSchema, RouteSelectSchema, WidgetSchema,
+    },
 };
 
 pub fn route_select(game_state: &mut GameState, routes: Vec<RouteSelectSchema>) {
@@ -24,4 +26,19 @@ pub fn multiple_choice(
         fail_scene_id,
     });
     game_state.input_mode = GameStateInputMode::AdvanceBlocked;
+}
+
+pub fn coffee_dilution(game_state: &mut GameState, pass_scene_id: usize, fail_scene_id: usize) {
+    game_state.widget = Some(WidgetSchema::CoffeeDilution(CoffeeDilutionSchema {
+        c_target: 1,
+        s_target: 1,
+        pass_scene_id,
+        fail_scene_id,
+        c1: 0,
+        s1: 0,
+        c2: 0,
+        s2: 0,
+        r1: 0,
+        r2: 0,
+    }))
 }
