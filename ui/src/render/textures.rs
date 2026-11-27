@@ -423,7 +423,7 @@ impl FvnrsApp {
         // Resolve defaults
         let scale = transform.scale.unwrap_or(1.0);
         let pos = match transform.position {
-            None => size * 0.5,
+            None => Vec2::from_array([TARGET_WIDTH * 0.5, TARGET_HEIGHT * 0.5]),
             Some(pos) => Vec2::from_array(pos),
         };
         let rotation = transform.rotation.unwrap_or(0.0);

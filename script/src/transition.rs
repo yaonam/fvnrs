@@ -1,6 +1,27 @@
 use state::game_state::GameState;
 
-use crate::layered_image::{LayeredImage, show_bg};
+use crate::{
+    animation::AnimationBuilder,
+    layered_image::{LayeredImage, show_bg},
+};
+
+pub fn fade_in<'a>(animation_builder: AnimationBuilder<'a>) -> AnimationBuilder<'a> {
+    animation_builder
+        .opacity(0.0)
+        .tween(1.0)
+        .opacity(1.0)
+        .wait(1.0)
+        .and()
+}
+
+pub fn fade_out<'a>(animation_builder: AnimationBuilder<'a>) -> AnimationBuilder<'a> {
+    animation_builder
+        .opacity(1.0)
+        .tween(1.0)
+        .opacity(0.0)
+        .wait(1.0)
+        .and()
+}
 
 pub fn fade_in_bg<L: LayeredImage>(
     game_state: &mut GameState,

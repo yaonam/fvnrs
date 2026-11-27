@@ -28,6 +28,22 @@ impl ImageSchema {
     pub fn with_transform(self, transform: ImageTransformSchema) -> Self {
         Self { transform, ..self }
     }
+
+    pub fn position(self, pos: [f32; 2]) -> Self {
+        Self {
+            transform: self.transform.position(pos),
+            ..self
+        }
+    }
+
+    pub fn scale(self, scale: f32) -> Self {
+        Self {
+            transform: self.transform.scale(scale),
+            ..self
+        }
+    }
+
+    // TODO: Other transforms
 }
 
 #[derive(Clone, Serialize, Deserialize, PartialEq, Debug)]
