@@ -100,11 +100,11 @@ pub(crate) const ROUTE_SLOT_CORNER_RADIUS: f32 = 5.0;
 pub(crate) const ROUTE_SLOT_TEXT_SIZE: f32 = 30.0;
 
 // ***********************************************************
-// MULTIPLE CHOICE WIDGET
+// COFFEE DILUTION WIDGET
 // ***********************************************************
 
-pub(crate) const MC_SUBMIT_HEIGHT: f32 = 50.0;
-pub(crate) const MC_SUBMIT_WIDTH: f32 = 100.0;
+pub(crate) const DILUTION_SECTION_TEXT_SIZE: f32 = 30.0;
+pub(crate) const DILUTION_INPUT_TEXT_SIZE: f32 = 20.0;
 
 // ***********************************************************
 // SETTINGS
