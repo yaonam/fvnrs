@@ -3,7 +3,8 @@ use state::{
     schema::{
         animation_schema::AnimationSchema,
         image_schema::{
-            ImageSchema, ImageTransformSchema, opacity, pivot, position, rotation, scale, z_index,
+            ImageSchema, ImageTransformSchema, opacity, pivot, position, rotation, scale, scale_xy,
+            z_index,
         },
     },
 };
@@ -86,6 +87,14 @@ impl<'a> ShowBuilder<'a> {
 
     pub fn scale(self, scale_factor: f32) -> Self {
         self.apply_transform(scale(scale_factor))
+    }
+
+    pub fn scale_xy(self, scale_factor: [f32; 2]) -> Self {
+        self.apply_transform(scale_xy(scale_factor))
+    }
+
+    pub fn flip_x(self) -> Self {
+        self.scale_xy([-1.0, 1.0])
     }
 
     pub fn rotation(self, radians: f32) -> Self {

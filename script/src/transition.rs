@@ -70,7 +70,7 @@ pub fn fade_in_out_bg<HL: LayeredImage, SL: LayeredImage>(
         .opacity(0.0)
         .wait(1.0)
         // Fade in next image
-        .show(show_image)
+        .show_bg(show_image)
         .opacity(0.0)
         .tween(tween_duration)
         .opacity(1.0)

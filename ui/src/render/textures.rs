@@ -421,7 +421,7 @@ impl FvnrsApp {
         let proj = Mat4::orthographic_rh(0.0, TARGET_WIDTH, 0.0, TARGET_HEIGHT, -1.0, 1.0);
 
         // Resolve defaults
-        let scale = transform.scale.unwrap_or(1.0);
+        let scale = transform.scale.unwrap_or([1.0, 1.0]);
         let pos = match transform.position {
             None => Vec2::from_array([TARGET_WIDTH * 0.5, TARGET_HEIGHT * 0.5]),
             Some(pos) => Vec2::from_array(pos),
@@ -435,7 +435,7 @@ impl FvnrsApp {
         // 4. Translate to final position in game space
         let model = Mat4::from_translation(Vec3::new(pos.x, pos.y, 0.0))
             * Mat4::from_quat(Quat::from_rotation_z(rotation))
-            * Mat4::from_scale(Vec3::new(scale * size.x, scale * size.y, 1.0))
+            * Mat4::from_scale(Vec3::new(scale[0] * size.x, scale[1] * size.y, 1.0))
             * Mat4::from_translation(Vec3::new(-pivot[0], -pivot[1], 0.0));
 
         let matrix = (proj * model).to_cols_array();

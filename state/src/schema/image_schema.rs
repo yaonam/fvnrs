@@ -43,14 +43,21 @@ impl ImageSchema {
         }
     }
 
+    pub fn scale_xy(self, scale: [f32; 2]) -> Self {
+        Self {
+            transform: self.transform.scale_xy(scale),
+            ..self
+        }
+    }
+
     // TODO: Other transforms
 }
 
 #[derive(Clone, Serialize, Deserialize, PartialEq, Debug)]
 pub struct ImageTransformSchema {
     pub position: Option<[f32; 2]>,
-    /// Uniform scale factor
-    pub scale: Option<f32>,
+    /// Uniform scale factor, negative values flip
+    pub scale: Option<[f32; 2]>,
     /// Rotation in radians
     pub rotation: Option<f32>,
     /// Pivot point for rotation
@@ -86,7 +93,8 @@ impl ImageTransformSchema {
             [a[0] + b[0], a[1] + b[1]]
         });
         // Multiply scales
-        let scale = merge_optional_values(other.scale, self.scale, |a, b| a * b);
+        let scale =
+            merge_optional_values(other.scale, self.scale, |a, b| [a[0] * b[0], a[1] * b[1]]);
         // Add rotations
         let rotation = merge_optional_values(other.rotation, self.rotation, |a, b| a + b);
         // TODO: Combine pivot
@@ -108,7 +116,7 @@ impl ImageTransformSchema {
     pub fn tween(&self, other: &ImageTransformSchema, t: f32) -> Self {
         Self {
             position: tween_float_vec2(self.position, other.position, t),
-            scale: tween_float(self.scale, other.scale, t),
+            scale: tween_float_vec2(self.scale, other.scale, t),
             rotation: tween_float(self.rotation, other.rotation, t),
             pivot: tween_float_vec2(self.pivot, other.pivot, t),
             opacity: tween_float(self.opacity, other.opacity, t),
@@ -132,6 +140,13 @@ impl ImageTransformSchema {
     }
 
     pub fn scale(self, scale: f32) -> Self {
+        Self {
+            scale: Some([scale, scale]),
+            ..self
+        }
+    }
+
+    pub fn scale_xy(self, scale: [f32; 2]) -> Self {
         Self {
             scale: Some(scale),
             ..self
@@ -173,6 +188,10 @@ pub fn position(pos: [f32; 2]) -> ImageTransformSchema {
 
 pub fn scale(scale: f32) -> ImageTransformSchema {
     ImageTransformSchema::default().scale(scale)
+}
+
+pub fn scale_xy(scale: [f32; 2]) -> ImageTransformSchema {
+    ImageTransformSchema::default().scale_xy(scale)
 }
 
 pub fn rotation(rotation: f32) -> ImageTransformSchema {

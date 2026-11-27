@@ -5,7 +5,9 @@ use state::{
         animation_schema::{
             AnimationMode, AnimationSchema, AnimationStep, AnimationTweenSchema, EasingFn,
         },
-        image_schema::{ImageSchema, ImageTransformSchema, opacity, rotation},
+        image_schema::{
+            ImageSchema, ImageTransformSchema, opacity, rotation, scale, scale_xy, z_index,
+        },
     },
 };
 
@@ -20,6 +22,14 @@ pub struct AnimationBuilder<'a> {
 }
 
 impl<'a> AnimationBuilder<'a> {
+    pub fn scale(self, scale_factor: f32) -> Self {
+        self.apply_transform_and_show(scale(scale_factor))
+    }
+
+    pub fn scale_xy(self, scale_factor: [f32; 2]) -> Self {
+        self.apply_transform_and_show(scale_xy(scale_factor))
+    }
+
     pub fn rotation(self, radians: f32) -> Self {
         self.apply_transform_and_show(rotation(radians))
     }
@@ -163,6 +173,11 @@ impl<'a> AnimationBuilder<'a> {
         self.push_step(AnimationStep::Show(images));
 
         self
+    }
+
+    pub fn show_bg(self, layered_image: impl LayeredImage) -> Self {
+        self.show(layered_image)
+            .apply_transform_and_show(z_index(-1))
     }
 
     pub fn hide(mut self) -> Self {
