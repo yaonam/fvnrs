@@ -11,6 +11,7 @@ pub struct TextBoxSchema {
     pub text_history: Option<Vec<String>>,
 
     /// Float between [0,1] where origin is top left of screen. (x,y)
+    pub size: Option<[f32; 2]>,
     pub position: Option<[f32; 2]>,
     pub visible: bool,
 
@@ -26,6 +27,7 @@ impl Default for TextBoxSchema {
             text: String::new(),
             text_color: None,
             text_history: None,
+            size: None,
             position: None,
             visible: true,
             start_scroll: false,

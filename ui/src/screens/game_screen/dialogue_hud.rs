@@ -50,8 +50,16 @@ fn draw_nvl_dialogue(app: &mut FvnrsApp, ui: &mut Ui, viewport: egui::Rect) {
         return;
     };
 
-    let size = egui::vec2(viewport.width() * NVL_WIDTH_RATIO, viewport.height());
-    let pos = egui::pos2(viewport.center().x - size.x / 2.0, viewport.top());
+    let raw_size = &game_state
+        .textbox
+        .size
+        .unwrap_or([viewport.width() * NVL_WIDTH_RATIO, viewport.height()]);
+    let size: egui::Vec2 = raw_size.into();
+    let raw_pos = &game_state
+        .textbox
+        .position
+        .unwrap_or([viewport.center().x - size.x / 2.0, viewport.top()]);
+    let pos: Pos2 = raw_pos.into();
     let rect = egui::Rect::from_min_size(pos, size);
 
     let mut should_end_text_scroll = false;
@@ -98,6 +106,7 @@ fn draw_nvl_dialogue(app: &mut FvnrsApp, ui: &mut Ui, viewport: egui::Rect) {
                         size: Some(TEXT_SIZE),
                         ..Default::default()
                     };
+                    // TODO: Display name if set
                     text_history.iter().for_each(|text| {
                         rich_text_label(
                             ui,

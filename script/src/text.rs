@@ -14,6 +14,12 @@ pub fn show_textbox(game_state: &mut GameState) {
     game_state.input_mode = GameStateInputMode::Continue;
 }
 
+pub fn set_textbox_size(game_state: &mut GameState, size: [f32; 2]) {
+    game_state.textbox.size = Some(size);
+
+    game_state.input_mode = GameStateInputMode::Continue;
+}
+
 pub fn set_textbox_pos(game_state: &mut GameState, pos: [f32; 2]) {
     game_state.textbox.position = Some(pos);
 
@@ -29,6 +35,7 @@ pub fn reset_textbox_pos(game_state: &mut GameState) {
 }
 
 pub fn reset_textbox(game_state: &mut GameState) {
+    game_state.textbox.size = None;
     game_state.textbox.position = None;
     game_state.textbox.visible = true;
 
